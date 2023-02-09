@@ -1,0 +1,3 @@
+# docker related files
+/docker-compose/mysql/data
+.DS_Store
