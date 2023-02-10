@@ -2,8 +2,39 @@
 
     if ( $_SERVER["REQUEST_METHOD"] === 'POST' ) {
 
-        header('Location: /');
-        exit;
+        // get form data
+        $receipt_date = $_POST["receipt_date"];
+	    $total_amount = $_POST["total_amount"];
+	    $notes = $_POST["notes"];
+	    $receipt = $_FILES["receipt"];
+
+        // call PB API to create new claim
+        $response = callAPI(
+            POCKETBASE_URL . '/api/collections/claims/records',
+            'POST',
+            [
+                "receipt_date" => $receipt_date,
+                "total_amount" => $total_amount,
+                "notes" => $notes,
+                "receipt" => new CURLFile( $receipt["tmp_name"], $receipt["type"], $receipt["name"] ),
+                "user" => $_SESSION["user"]["record"]["id"]
+            ],
+            [
+                "Content-Type: multipart/form-data",
+                "Authorization: Bearer " . $_SESSION["user"]["token"]
+            ]
+        );
+
+        // if success
+        if ( isset( $response["status"] ) && $response["status"] === 'success' ) {
+            // redirect to dashboard
+            header('Location: /');
+            exit;
+        }
+
+        // error
+        if ( isset( $response["status"] ) && $response["status"] === 'error' )
+            $error = isset( $response["message"] ) ? $response["message"] : 'Unknown Error';
     }
 
     require dirname(__DIR__) . '/parts/header.php';

@@ -43,7 +43,7 @@ function callAPI( $url = '' , $method = 'GET', $data = [], $headers = [] )
             "message" => $err
         ];
     } 
-    
+
     return [
         "status" => "success",
         "data" => $isJson ? json_decode( $response, true ) : $response

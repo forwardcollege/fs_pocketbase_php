@@ -1,9 +1,37 @@
 <?php
 
     if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
-        // redirect to dashboard
-        header('Location: /');
-        exit;
+        
+        // get form data
+        $email = $_POST["email"];
+        $password = $_POST["password"];
+
+        // call PB API to login user
+        $response = callAPI(
+            POCKETBASE_URL . '/api/collections/users/auth-with-password',
+            'POST',
+            [
+                "identity" => $email,
+                "password" => $password,
+            ],
+            [
+                "Content-Type: application/json"
+            ]
+        );
+
+        // if success
+        if ( isset( $response["status"] ) && $response["status"] === 'success' ) {
+            $_SESSION['user'] = $response['data'];
+            // redirect to login
+            header( 'Location: /' );
+            exit;
+        }
+
+        // if error
+        if ( isset( $response["status"] ) && $response["status"] === 'error' )
+            $error = ( isset( $response["message"] ) ? $response["message"] : 'Unknown Error' );
+        
+
     }
 
     require dirname(__DIR__) .  '/parts/header.php';

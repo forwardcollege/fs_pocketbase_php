@@ -1,6 +1,32 @@
 <?php
 
-    $claims = [];
+    if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+        $claim_id = $_POST['claim_id'];
+
+        $response = callAPI(
+            POCKETBASE_URL . '/api/collections/claims/records/' . $claim_id,
+            'DELETE',
+            [],
+            [
+                "Content-Type: application/json",
+                "Authorization: Bearer " . $_SESSION["user"]["token"]
+            ]
+        );
+
+    }
+
+    // get claims
+    $response = callAPI(
+        POCKETBASE_URL . '/api/collections/claims/records?sort=-created&filter=(user.id="'. 
+        $_SESSION["user"]["record"]["id"] .'")',
+        'GET',
+        [],
+        [
+            "Content-Type: application/json"
+        ]
+    );
+
+    $claims = ( isset( $response['data']['items'] ) ? $response['data']['items'] : [] );
 
 ?>
 <div class="text-end pb-2">
@@ -35,7 +61,7 @@
                     <td>MYR <?php echo $claim["total_amount"]; ?></td>
                     <td><?php echo $claim["notes"]; ?></td>
                     <td>
-                        <a href="<?php echo POCKETBASE_URL . 'api/files/'.$claim['collectionId'].'/'.$claim['id'].'/'.$claim['receipt']; ?>" target="_blank" class="btn btn-primary btn-sm"><i class="bi bi-eye"></i></a>
+                        <a href="<?php echo POCKETBASE_URL . '/api/files/'.$claim['collectionId'].'/'.$claim['id'].'/'.$claim['receipt']; ?>" target="_blank" class="btn btn-primary btn-sm"><i class="bi bi-eye"></i></a>
                         <button href="#" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delete-claim-<?php echo $claim['id']; ?>"><i class="bi bi-trash"></i></button>
                         <div class="modal fade" id="delete-claim-<?php echo $claim['id']; ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog">

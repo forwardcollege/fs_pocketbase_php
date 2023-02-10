@@ -2,6 +2,8 @@
 
     session_start();
 
+    define( "POCKETBASE_URL", "https://nathanonn-special-telegram-7r64v976jq2xxq7-8090.preview.app.github.dev" );
+
     require 'includes/functions.php';
 
     // get route

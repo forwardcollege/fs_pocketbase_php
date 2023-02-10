@@ -1,9 +1,38 @@
 <?php
 
     if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
-        
-        header('Location: /');
-        exit;
+
+        // get form data
+        $name = $_POST["name"];
+        $email = $_POST["email"];
+        $password = $_POST["password"];
+        $confirmPassword = $_POST["confirm_password"];
+
+        // call PB API to create new user
+        $response = callAPI(
+            POCKETBASE_URL . '/api/collections/users/records',
+            'POST',
+            [
+                "name" => $name,
+                "email" => $email,
+                "password" => $password,
+                "passwordConfirm" => $confirmPassword
+            ],
+            [
+                "Content-Type: application/json"
+            ]
+        );
+
+        // if success
+        if ( isset( $response["status"] ) && $response["status"] === 'success' ) {
+            // redirect to login
+            header( 'Location: /login' );
+            exit;
+        }
+
+        // if error
+        if ( isset( $response["status"] ) && $response["status"] === 'error' )
+            $error = ( isset( $response["message"] ) ? $response["message"] : 'Unknown Error' );
         
     }
 
